@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jeu - C dur ou C doux ?</title>
+  <style>
+    body {
+      font-family: Comic Sans MS, sans-serif;
+      background-color: #fffaf0;
+      text-align: center;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      font-size: 36px;
+    }
+    p {
+      font-size: 22px;
+    }
+    #words {
+      margin-top: 20px;
+      margin-bottom: 40px;
+    }
+    .word {
+      background-color: #fce4ec;
+      border: 2px solid #f06292;
+      padding: 12px 20px;
+      margin: 10px;
+      display: inline-block;
+      cursor: grab;
+      border-radius: 10px;
+      font-size: 26px;
+    }
+    .container {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    .column {
+      width: 40%;
+      min-width: 300px;
+      margin: 10px;
+      padding: 20px;
+      border-radius: 15px;
+      font-size: 24px;
+    }
+    #cDur {
+      background-color: #a5d6a7;
+      border: 3px solid #2e7d32;
+    }
+    #cDoux {
+      background-color: #90caf9;
+      border: 3px solid #1565c0;
+    }
+    .column h2 {
+      font-size: 30px;
+      margin-bottom: 20px;
+      color: #000;
+    }
+    #checkBtn {
+      margin-top: 30px;
+      padding: 10px 30px;
+      font-size: 24px;
+      background-color: #ffd54f;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    #checkBtn:hover {
+      background-color: #ffca28;
+      transform: translateY(-2px);
+    }
+    #checkBtn:active {
+      transform: translateY(1px);
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      min-height: 40px;
+    }
+    .wordContainer {
+      min-height: 280px;
+      padding-top: 10px;
+      border: 2px dashed rgba(0,0,0,0.2);
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 16px;
+      color: #666;
+    }
+    @media (max-width: 768px) {
+      .column {
+        width: 90%;
+      }
+      .word {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>🎲 C dur ou C doux ?</h1>
+<p>Glisse chaque mot dans la bonne colonne, puis clique sur "Vérifier".</p>
+
+<div id="words">
+  <div class="word" draggable="true" id="catu">catu</div>
+  <div class="word" draggable="true" id="cevi">cevi</div>
+  <div class="word" draggable="true" id="cyla">cyla</div>
+  <div class="word" draggable="true" id="paco">paco</div>
+  <div class="word" draggable="true" id="ciso">ciso</div>
+  <div class="word" draggable="true" id="comi">comi</div>
+  <div class="word" draggable="true" id="docu">docu</div>
+  <div class="word" draggable="true" id="cubi">cubi</div>
+</div>
+
+<div class="container">
+  <div class="column" id="cDur">
+    <h2>🟩 C dur</h2>
+    <div class="wordContainer" ondrop="drop(event, 'cDur')" ondragover="allowDrop(event)"></div>
+  </div>
+  <div class="column" id="cDoux">
+    <h2>🟦 C doux</h2>
+    <div class="wordContainer" ondrop="drop(event, 'cDoux')" ondragover="allowDrop(event)"></div>
+  </div>
+</div>
+
+<button id="checkBtn" onclick="checkAnswers()">Vérifier</button>
+<div id="result"></div>
+
+<footer>
+  Jeu éducatif - C dur ou C doux © 2025
+</footer>
+
+<script>
+  // Empêche le comportement par défaut pour permettre le drop
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  // Configure tous les mots pour être draggables
+  document.querySelectorAll('.word').forEach(word => {
+    word.addEventListener('dragstart', function(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+    });
+  });
+
+  // Gère le dépôt des mots dans les colonnes
+  function drop(ev, targetId) {
+    ev.preventDefault();
+    const data = ev.dataTransfer.getData("text");
+    const word = document.getElementById(data);
+    
+    // S'assure que le mot est ajouté au conteneur de mots spécifique
+    const container = document.querySelector(`#${targetId} .wordContainer`);
+    container.appendChild(word);
+  }
+
+  // Vérifie si les réponses sont correctes
+  function checkAnswers() {
+    const cDurCorrect = ['catu', 'paco', 'comi', 'docu', 'cubi'];
+    const cDouxCorrect = ['cevi', 'cyla', 'ciso'];
+
+    const cDurZone = Array.from(document.querySelector('#cDur .wordContainer').children)
+      .map(el => el.id).filter(id => id !== undefined && id !== '');
+
+    const cDouxZone = Array.from(document.querySelector('#cDoux .wordContainer').children)
+      .map(el => el.id).filter(id => id !== undefined && id !== '');
+
+    // Vérifie si tous les mots sont placés correctement
+    let allWordsPlaced = cDurZone.length + cDouxZone.length === cDurCorrect.length + cDouxCorrect.length;
+    if (!allWordsPlaced) {
+      document.getElementById('result').textContent = '❓ Place tous les mots avant de vérifier.';
+      return;
+    }
+
+    let correct = true;
+
+    // Vérifie chaque mot dans la catégorie C dur
+    for (let word of cDurCorrect) {
+      if (!cDurZone.includes(word)) correct = false;
+    }
+    
+    // Vérifie chaque mot dans la catégorie C doux
+    for (let word of cDouxCorrect) {
+      if (!cDouxZone.includes(word)) correct = false;
+    }
+
+    // Affiche le résultat
+    document.getElementById('result').textContent = correct ?
+      '✅ Bravo ! Tous les mots sont bien placés.' :
+      '❌ Oups ! Essaie encore, certains mots ne sont pas bien placés.';
+  }
+
+  // Ajoute un message d'instructions au chargement
+  window.onload = function() {
+    document.getElementById('result').textContent = '👆 Glisse les mots dans les bonnes colonnes';
+  }
+</script>
+
+</body>
+</html>
